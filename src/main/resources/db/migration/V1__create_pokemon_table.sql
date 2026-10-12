@@ -1,0 +1,10 @@
+
+CREATE TABLE pokemon (
+    id INTEGER PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    image_url TEXT,
+    weight INTEGER,
+    height INTEGER,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

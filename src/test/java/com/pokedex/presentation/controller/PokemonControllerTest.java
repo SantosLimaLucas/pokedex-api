@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.client.RestClientException;
 
 import java.util.List;
 
@@ -102,5 +103,30 @@ class PokemonControllerTest {
         mockMvc.perform(get("/api/pokemon/0"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400));
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenPokemonIdIsNotNumeric()
+            throws Exception {
+
+        mockMvc.perform(get("/api/pokemon/abc"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturnBadGatewayWhenExternalApiFails()
+            throws Exception {
+
+        when(getPokemonDetailsUseCase.execute(25))
+                .thenThrow(new RestClientException(
+                        "External API is unavailable"
+                ));
+
+        mockMvc.perform(get("/api/pokemon/25"))
+                .andExpect(status().isBadGateway())
+                .andExpect(jsonPath("$.status").value(502))
+                .andExpect(jsonPath("$.detail").value(
+                        "Unable to retrieve Pokemon data from the external API"
+                ));
     }
 }

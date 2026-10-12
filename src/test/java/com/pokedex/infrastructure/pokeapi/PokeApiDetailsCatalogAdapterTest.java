@@ -153,7 +153,12 @@ class PokeApiDetailsCatalogAdapterTest {
 
         assertEquals("pikachu", pikachu.name());
         assertEquals(1, pikachu.evolvesTo().size());
-        assertEquals("raichu", pikachu.evolvesTo().get(0).name());
+
+        EvolutionPokemon raichu = pikachu.evolvesTo().get(0);
+
+        assertEquals("raichu", raichu.name());
+        assertEquals(26, raichu.id());
+        assertTrue(raichu.evolvesTo().isEmpty());
     }
 
     @Test
@@ -165,5 +170,106 @@ class PokeApiDetailsCatalogAdapterTest {
                 new PokeApiDetailsCatalogAdapter(client);
 
         assertTrue(catalog.findById(999).isEmpty());
+    }
+
+    @Test
+    void shouldReturnThreeLevelEvolutionChain() {
+        PokeApiClient client = mock(PokeApiClient.class);
+
+        PokeApiClient.PokemonResponse pokemon =
+                new PokeApiClient.PokemonResponse(
+                        1,
+                        "bulbasaur",
+                        69,
+                        new PokeApiClient.Sprites(
+                                "https://example.com/bulbasaur.png"
+                        ),
+                        List.of(
+                                new PokeApiClient.TypeSlot(
+                                        new PokeApiClient.TypeReference("grass")
+                                ),
+                                new PokeApiClient.TypeSlot(
+                                        new PokeApiClient.TypeReference("poison")
+                                )
+                        ),
+                        List.of(),
+                        new PokeApiClient.SpeciesReference(
+                                "bulbasaur",
+                                "https://pokeapi.co/api/v2/pokemon-species/1/"
+                        ),
+                        List.of()
+                );
+
+        PokeApiClient.PokemonSpeciesResponse species =
+                new PokeApiClient.PokemonSpeciesResponse(
+                        List.of(
+                                new PokeApiClient.FlavorTextEntry(
+                                        "A strange seed was planted on its back at birth.",
+                                        new PokeApiClient.Language("en")
+                                )
+                        ),
+                        new PokeApiClient.EvolutionChainReference(
+                                "https://pokeapi.co/api/v2/evolution-chain/1/"
+                        )
+                );
+
+        PokeApiClient.EvolutionChainResponse evolutionResponse =
+                new PokeApiClient.EvolutionChainResponse(
+                        new PokeApiClient.ChainLink(
+                                new PokeApiClient.SpeciesReference(
+                                        "bulbasaur",
+                                        "https://pokeapi.co/api/v2/pokemon-species/1/"
+                                ),
+                                List.of(
+                                        new PokeApiClient.ChainLink(
+                                                new PokeApiClient.SpeciesReference(
+                                                        "ivysaur",
+                                                        "https://pokeapi.co/api/v2/pokemon-species/2/"
+                                                ),
+                                                List.of(
+                                                        new PokeApiClient.ChainLink(
+                                                                new PokeApiClient.SpeciesReference(
+                                                                        "venusaur",
+                                                                        "https://pokeapi.co/api/v2/pokemon-species/3/"
+                                                                ),
+                                                                List.of()
+                                                        )
+                                                )
+                                        )
+                                )
+                        )
+                );
+
+        when(client.getPokemonById(1)).thenReturn(pokemon);
+        when(client.getSpecies(pokemon.species().url())).thenReturn(species);
+        when(client.getEvolutionChain(
+                species.evolutionChain().url()
+        )).thenReturn(evolutionResponse);
+
+        PokemonDetailsCatalog catalog =
+                new PokeApiDetailsCatalogAdapter(client);
+
+        Optional<PokemonDetails> result = catalog.findById(1);
+
+        assertTrue(result.isPresent());
+
+        EvolutionPokemon bulbasaur =
+                result.orElseThrow().evolutionChain();
+
+        assertEquals(1, bulbasaur.id());
+        assertEquals("bulbasaur", bulbasaur.name());
+        assertEquals(1, bulbasaur.evolvesTo().size());
+
+        EvolutionPokemon ivysaur = bulbasaur.evolvesTo().get(0);
+
+        assertEquals(2, ivysaur.id());
+        assertEquals("ivysaur", ivysaur.name());
+        assertEquals(1, ivysaur.evolvesTo().size());
+
+        EvolutionPokemon venusaur = ivysaur.evolvesTo().get(0);
+
+        assertEquals(3, venusaur.id());
+        assertEquals("venusaur", venusaur.name());
+        assertTrue(venusaur.evolvesTo().isEmpty());
     }
 }
