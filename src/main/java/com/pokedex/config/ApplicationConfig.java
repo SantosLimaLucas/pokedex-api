@@ -6,11 +6,21 @@ import com.pokedex.application.usecase.ListPokemonUseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.pokedex.application.port.out.PokemonDetailsCatalog;
+import com.pokedex.application.usecase.GetPokemonDetailsUseCase;
+
 @Configuration
 public class ApplicationConfig {
 
     @Bean
     ListPokemonUseCase listPokemonUseCase(PokemonCatalog pokemonCatalog) {
         return new ListPokemonUseCase(pokemonCatalog);
+    }
+
+    @Bean
+    public GetPokemonDetailsUseCase getPokemonDetailsUseCase(
+            PokemonDetailsCatalog catalog
+    ) {
+        return new GetPokemonDetailsUseCase(catalog);
     }
 }

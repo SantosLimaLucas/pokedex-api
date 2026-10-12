@@ -7,7 +7,8 @@ public record PokemonDetails(
         String name,
         String imageUrl,
         List<String> types,
+        PokemonStats stats,
         String description,
-        List<String> evolutionChain
+        EvolutionPokemon evolutionChain
 ) {
 }
