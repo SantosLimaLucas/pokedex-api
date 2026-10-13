@@ -2,6 +2,7 @@
 package com.pokedex.config;
 
 import com.pokedex.application.port.out.PokemonCatalog;
+import com.pokedex.application.port.out.PokemonRepository;
 import com.pokedex.application.usecase.ListPokemonUseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,8 +20,9 @@ public class ApplicationConfig {
 
     @Bean
     public GetPokemonDetailsUseCase getPokemonDetailsUseCase(
-            PokemonDetailsCatalog catalog
+            PokemonDetailsCatalog catalog,
+            PokemonRepository repository
     ) {
-        return new GetPokemonDetailsUseCase(catalog);
+        return new GetPokemonDetailsUseCase(catalog, repository);
     }
 }

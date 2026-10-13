@@ -2,77 +2,102 @@
 package com.pokedex.application.usecase;
 
 import com.pokedex.application.port.out.PokemonDetailsCatalog;
+import com.pokedex.application.port.out.PokemonRepository;
 import com.pokedex.domain.model.PokemonDetails;
-import com.pokedex.domain.model.PokemonStats;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class GetPokemonDetailsUseCaseTest {
 
-    @Test
-    void shouldReturnPokemonDetailsWhenPokemonExists() {
-        PokemonDetailsCatalog catalog = mock(PokemonDetailsCatalog.class);
+    private PokemonDetailsCatalog catalog;
+    private PokemonRepository repository;
+    private GetPokemonDetailsUseCase useCase;
 
-        PokemonDetails expected = new PokemonDetails(
-                25,
-                "pikachu",
-                "https://example.com/pikachu.png",
-                List.of("electric"),
-                60,
-                4,
-                List.of("static", "lightning-rod"),
-                new PokemonStats(35, 55, 40, 50, 50, 90),
-                "Pikachu stores electricity in its cheeks.",
-                null
-        );
+    @BeforeEach
+    void setUp() {
+        catalog = mock(PokemonDetailsCatalog.class);
+        repository = mock(PokemonRepository.class);
 
-        when(catalog.findById(25)).thenReturn(Optional.of(expected));
-
-        GetPokemonDetailsUseCase useCase =
-                new GetPokemonDetailsUseCase(catalog);
-
-        PokemonDetails actual = useCase.execute(25);
-
-        assertEquals(expected, actual);
-        assertEquals(60, actual.weight());
-        assertEquals(4, actual.height());
-        assertEquals(
-                List.of("static", "lightning-rod"),
-                actual.abilities()
+        useCase = new GetPokemonDetailsUseCase(
+                catalog,
+                repository
         );
     }
 
     @Test
-    void shouldThrowNotFoundExceptionWhenPokemonDoesNotExist() {
-        PokemonDetailsCatalog catalog = mock(PokemonDetailsCatalog.class);
-        when(catalog.findById(999)).thenReturn(Optional.empty());
+    void shouldReturnLocalPokemonWithoutCallingExternalCatalog() {
+        PokemonDetails details = mock(PokemonDetails.class);
 
-        GetPokemonDetailsUseCase useCase =
-                new GetPokemonDetailsUseCase(catalog);
+        when(repository.findDetailsById(25))
+                .thenReturn(Optional.of(details));
+
+        PokemonDetails result = useCase.execute(25);
+
+        assertSame(details, result);
+
+        verify(repository).findDetailsById(25);
+        verifyNoInteractions(catalog);
+        verify(repository, never())
+                .saveDetails(any());
+    }
+
+    @Test
+    void shouldFetchAndSavePokemonWhenNotFoundLocally() {
+        PokemonDetails details = mock(PokemonDetails.class);
+
+        when(repository.findDetailsById(25))
+                .thenReturn(Optional.empty());
+
+        when(catalog.findById(25))
+                .thenReturn(Optional.of(details));
+
+        when(repository.saveDetails(details))
+                .thenReturn(details);
+
+        PokemonDetails result = useCase.execute(25);
+
+        assertSame(details, result);
+
+        verify(repository).findDetailsById(25);
+        verify(catalog).findById(25);
+        verify(repository).saveDetails(details);
+    }
+
+    @Test
+    void shouldThrowNotFoundWhenPokemonDoesNotExist() {
+        when(repository.findDetailsById(99999))
+                .thenReturn(Optional.empty());
+
+        when(catalog.findById(99999))
+                .thenReturn(Optional.empty());
 
         assertThrows(
                 PokemonNotFoundException.class,
-                () -> useCase.execute(999)
+                () -> useCase.execute(99999)
         );
+
+        verify(repository, never())
+                .saveDetails(any());
     }
 
     @Test
-    void shouldRejectNonPositivePokemonId() {
-        PokemonDetailsCatalog catalog = mock(PokemonDetailsCatalog.class);
-
-        GetPokemonDetailsUseCase useCase =
-                new GetPokemonDetailsUseCase(catalog);
-
+    void shouldRejectInvalidPokemonId() {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> useCase.execute(0)
         );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> useCase.execute(null)
+        );
+
+        verifyNoInteractions(repository, catalog);
     }
 }
