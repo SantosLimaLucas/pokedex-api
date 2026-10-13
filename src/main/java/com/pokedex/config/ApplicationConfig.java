@@ -1,14 +1,12 @@
 
 package com.pokedex.config;
 
-import com.pokedex.application.port.out.PokemonCatalog;
-import com.pokedex.application.port.out.PokemonRemoteCatalog;
-import com.pokedex.application.port.out.PokemonRepository;
+import com.pokedex.application.port.out.*;
 import com.pokedex.application.usecase.ListPokemonUseCase;
+import com.pokedex.application.usecase.UpdatePokemonCustomDataUseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.pokedex.application.port.out.PokemonDetailsCatalog;
 import com.pokedex.application.usecase.GetPokemonDetailsUseCase;
 
 @Configuration
@@ -36,4 +34,13 @@ public class ApplicationConfig {
     ) {
         return new GetPokemonDetailsUseCase(catalog, repository);
     }
+
+
+    @Bean
+    public UpdatePokemonCustomDataUseCase updatePokemonCustomDataUseCase(
+            PokemonCustomDataRepository repository
+    ) {
+        return new UpdatePokemonCustomDataUseCase(repository);
+    }
+
 }

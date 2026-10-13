@@ -17,7 +17,10 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/pokemon/sync")
+                        .ignoringRequestMatchers(
+                                "/api/pokemon/sync",
+                                "/api/pokemon/*"
+                        )
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -28,6 +31,10 @@ public class SecurityConfig {
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/api/pokemon/sync"
+                        ).permitAll()
+                        .requestMatchers(
+                                HttpMethod.PATCH,
+                                "/api/pokemon/*"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

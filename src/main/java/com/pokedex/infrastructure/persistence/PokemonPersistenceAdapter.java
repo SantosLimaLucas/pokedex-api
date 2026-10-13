@@ -106,7 +106,7 @@ public class PokemonPersistenceAdapter implements PokemonRepository {
                 stats.speed()
         );
 
-        jpaRepository.save(entity);
+        PokemonEntity savedEntity = jpaRepository.save(entity);
 
         // Remove the previous evolution tree before saving the new one.
         evolutionRepository.deleteByIdPokemonId(details.id());
@@ -125,7 +125,8 @@ public class PokemonPersistenceAdapter implements PokemonRepository {
 
         evolutionRepository.saveAll(evolutions);
 
-        return details;
+        // Return official data together with the existing custom fields.
+        return toDetails(savedEntity, evolutions);
     }
 
     private boolean hasDetails(PokemonEntity entity) {
@@ -174,7 +175,10 @@ public class PokemonPersistenceAdapter implements PokemonRepository {
                 List.copyOf(entity.getAbilities()),
                 stats,
                 entity.getDescription(),
-                evolutionChain
+                evolutionChain,
+                entity.getCustomName(),
+                entity.getRegion(),
+                List.copyOf(entity.getTags())
         );
     }
 
