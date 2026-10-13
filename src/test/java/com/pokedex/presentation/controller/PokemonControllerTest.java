@@ -1,3 +1,4 @@
+
 package com.pokedex.presentation.controller;
 
 import com.pokedex.application.usecase.GetPokemonDetailsUseCase;
@@ -51,6 +52,9 @@ class PokemonControllerTest {
                 "pikachu",
                 "https://example.com/pikachu.png",
                 List.of("electric"),
+                60,
+                4,
+                List.of("static", "lightning-rod"),
                 new PokemonStats(35, 55, 40, 50, 50, 90),
                 "Stores electricity in its cheeks.",
                 new EvolutionPokemon(
@@ -67,7 +71,13 @@ class PokemonControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(25))
                 .andExpect(jsonPath("$.name").value("pikachu"))
+                .andExpect(jsonPath("$.imageUrl")
+                        .value("https://example.com/pikachu.png"))
                 .andExpect(jsonPath("$.types[0]").value("electric"))
+                .andExpect(jsonPath("$.weight").value(60))
+                .andExpect(jsonPath("$.height").value(4))
+                .andExpect(jsonPath("$.abilities[0]").value("static"))
+                .andExpect(jsonPath("$.abilities[1]").value("lightning-rod"))
                 .andExpect(jsonPath("$.stats.hp").value(35))
                 .andExpect(jsonPath("$.stats.attack").value(55))
                 .andExpect(jsonPath("$.stats.defense").value(40))

@@ -34,6 +34,7 @@ class PokeApiCatalogAdapterTest {
                 25,
                 "pikachu",
                 60,
+                4,
                 new PokeApiClient.Sprites(
                         "https://example.com/pikachu.png"
                 ),

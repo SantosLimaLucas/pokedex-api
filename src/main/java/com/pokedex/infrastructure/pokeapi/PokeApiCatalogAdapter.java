@@ -68,6 +68,7 @@ public class PokeApiCatalogAdapter implements PokemonCatalog {
                         : response.sprites().frontDefault(),
                 types,
                 response.weight(),
+                response.height(),
                 abilities
         );
     }

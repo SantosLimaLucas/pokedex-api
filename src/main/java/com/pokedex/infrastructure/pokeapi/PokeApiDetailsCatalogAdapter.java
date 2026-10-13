@@ -48,6 +48,7 @@ public class PokeApiDetailsCatalogAdapter implements PokemonDetailsCatalog {
 
         PokemonStats stats = mapStats(pokemon.stats());
         List<String> types = mapTypes(pokemon.types());
+        List<String> abilities = mapAbilities(pokemon.abilities());
         String description = mapEnglishDescription(species);
 
         EvolutionPokemon evolutionChain = mapEvolutionChain(species);
@@ -61,6 +62,9 @@ public class PokeApiDetailsCatalogAdapter implements PokemonDetailsCatalog {
                 pokemon.name(),
                 imageUrl,
                 types,
+                pokemon.weight(),
+                pokemon.height(),
+                abilities,
                 stats,
                 description,
                 evolutionChain
@@ -100,6 +104,19 @@ public class PokeApiDetailsCatalogAdapter implements PokemonDetailsCatalog {
         return typeSlots.stream()
                 .filter(slot -> slot.type() != null)
                 .map(slot -> slot.type().name())
+                .toList();
+    }
+
+    private List<String> mapAbilities(
+            List<PokeApiClient.AbilitySlot> abilitySlots
+    ) {
+        if (abilitySlots == null) {
+            return List.of();
+        }
+
+        return abilitySlots.stream()
+                .filter(slot -> slot.ability() != null)
+                .map(slot -> slot.ability().name())
                 .toList();
     }
 

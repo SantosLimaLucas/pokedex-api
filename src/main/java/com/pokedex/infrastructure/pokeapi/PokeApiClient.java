@@ -68,6 +68,7 @@ public class PokeApiClient {
             int id,
             String name,
             int weight,
+            int height,
             Sprites sprites,
             List<TypeSlot> types,
             List<AbilitySlot> abilities,
@@ -78,12 +79,13 @@ public class PokeApiClient {
                 int id,
                 String name,
                 int weight,
+                int height,
                 Sprites sprites,
                 List<TypeSlot> types,
                 List<AbilitySlot> abilities,
                 SpeciesReference species
         ) {
-            this(id, name, weight, sprites, types, abilities, species, List.of());
+            this(id, name, weight, height, sprites, types, abilities, species, List.of());
         }
     }
 

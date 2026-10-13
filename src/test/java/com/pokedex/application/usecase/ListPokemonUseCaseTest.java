@@ -31,6 +31,7 @@ class ListPokemonUseCaseTest {
                 "https://example.com/pikachu.png",
                 List.of("electric"),
                 60,
+                4,
                 List.of("static")
         );
 

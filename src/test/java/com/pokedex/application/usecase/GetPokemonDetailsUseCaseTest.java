@@ -1,3 +1,4 @@
+
 package com.pokedex.application.usecase;
 
 import com.pokedex.application.port.out.PokemonDetailsCatalog;
@@ -24,6 +25,9 @@ class GetPokemonDetailsUseCaseTest {
                 "pikachu",
                 "https://example.com/pikachu.png",
                 List.of("electric"),
+                60,
+                4,
+                List.of("static", "lightning-rod"),
                 new PokemonStats(35, 55, 40, 50, 50, 90),
                 "Pikachu stores electricity in its cheeks.",
                 null
@@ -37,6 +41,12 @@ class GetPokemonDetailsUseCaseTest {
         PokemonDetails actual = useCase.execute(25);
 
         assertEquals(expected, actual);
+        assertEquals(60, actual.weight());
+        assertEquals(4, actual.height());
+        assertEquals(
+                List.of("static", "lightning-rod"),
+                actual.abilities()
+        );
     }
 
     @Test

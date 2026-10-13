@@ -1,3 +1,4 @@
+
 package com.pokedex.infrastructure.pokeapi;
 
 import com.pokedex.application.port.out.PokemonDetailsCatalog;
@@ -25,6 +26,7 @@ class PokeApiDetailsCatalogAdapterTest {
                         25,
                         "pikachu",
                         60,
+                        4,
                         new PokeApiClient.Sprites(
                                 "https://example.com/pikachu.png"
                         ),
@@ -33,7 +35,16 @@ class PokeApiDetailsCatalogAdapterTest {
                                         new PokeApiClient.TypeReference("electric")
                                 )
                         ),
-                        List.of(),
+                        List.of(
+                                new PokeApiClient.AbilitySlot(
+                                        false,
+                                        new PokeApiClient.AbilityReference("static")
+                                ),
+                                new PokeApiClient.AbilitySlot(
+                                        true,
+                                        new PokeApiClient.AbilityReference("lightning-rod")
+                                )
+                        ),
                         new PokeApiClient.SpeciesReference(
                                 "pikachu",
                                 "https://pokeapi.co/api/v2/pokemon-species/25/"
@@ -133,6 +144,13 @@ class PokeApiDetailsCatalogAdapterTest {
         );
         assertEquals(List.of("electric"), actual.types());
 
+        assertEquals(60, actual.weight());
+        assertEquals(4, actual.height());
+        assertEquals(
+                List.of("static", "lightning-rod"),
+                actual.abilities()
+        );
+
         assertEquals(
                 new PokemonStats(35, 55, 40, 50, 50, 90),
                 actual.stats()
@@ -181,6 +199,7 @@ class PokeApiDetailsCatalogAdapterTest {
                         1,
                         "bulbasaur",
                         69,
+                        4,
                         new PokeApiClient.Sprites(
                                 "https://example.com/bulbasaur.png"
                         ),

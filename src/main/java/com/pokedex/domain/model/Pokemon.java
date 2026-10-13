@@ -8,6 +8,7 @@ public record Pokemon(
         String spriteUrl,
         List<String> types,
         Integer weight,
+        Integer height,
         List<String> abilities
 ) {
     public Pokemon {
