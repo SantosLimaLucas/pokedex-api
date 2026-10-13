@@ -4,7 +4,9 @@ package com.pokedex.application.usecase;
 import com.pokedex.application.port.out.PokemonDetailsCatalog;
 import com.pokedex.application.port.out.PokemonRepository;
 import com.pokedex.domain.model.PokemonDetails;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class GetPokemonDetailsUseCase {
 
     private final PokemonDetailsCatalog catalog;
@@ -24,12 +26,13 @@ public class GetPokemonDetailsUseCase {
                     "Pokemon ID must be a positive integer."
             );
         }
-
+        log.info("Searching locally");
         return repository.findDetailsById(id)
                 .orElseGet(() -> fetchAndSave(id));
     }
 
     private PokemonDetails fetchAndSave(Integer id) {
+        log.info("Not found locally, fetching from remote catalog...");
         PokemonDetails details = catalog.findById(id)
                 .orElseThrow(() ->
                         new PokemonNotFoundException(

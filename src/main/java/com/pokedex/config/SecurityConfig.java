@@ -16,15 +16,22 @@ public class SecurityConfig {
             throws Exception {
 
         http
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    HttpMethod.GET,
-                    "/api/pokemon",
-                    "/api/pokemon/**"
-                ).permitAll()
-                .anyRequest().authenticated()
-            )
-            .httpBasic(Customizer.withDefaults());
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/pokemon/sync")
+                )
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/pokemon",
+                                "/api/pokemon/**"
+                        ).permitAll()
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/pokemon/sync"
+                        ).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .httpBasic(Customizer.withDefaults());
 
         return http.build();
     }

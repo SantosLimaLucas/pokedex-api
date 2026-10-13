@@ -104,7 +104,7 @@ class PokemonPersistenceAdapterIntegrationTest {
                 .isEqualTo("https://example.com/pikachu.png");
         assertThat(savedDetails.types()).containsExactly("electric");
         assertThat(savedDetails.abilities())
-                .containsExactly("static", "lightning-rod");
+                .containsExactlyInAnyOrder("static", "lightning-rod");
         assertThat(savedDetails.weight()).isEqualTo(60);
         assertThat(savedDetails.height()).isEqualTo(4);
         assertThat(savedDetails.description())

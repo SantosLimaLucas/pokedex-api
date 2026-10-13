@@ -2,14 +2,14 @@
 package com.pokedex.infrastructure.pokeapi;
 
 import com.pokedex.application.dto.PokemonPage;
-import com.pokedex.application.port.out.PokemonCatalog;
+import com.pokedex.application.port.out.PokemonRemoteCatalog;
 import com.pokedex.domain.model.Pokemon;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
-public class PokeApiCatalogAdapter implements PokemonCatalog {
+public class PokeApiCatalogAdapter implements PokemonRemoteCatalog {
 
     private final PokeApiClient client;
 
@@ -21,11 +21,19 @@ public class PokeApiCatalogAdapter implements PokemonCatalog {
     public PokemonPage findAll(int page, int size) {
         int offset = Math.multiplyExact(page, size);
 
-        var response = client.listPokemon(size, offset);
+        PokeApiClient.PokemonListResponse response =
+                client.listPokemon(size, offset);
+
+        if (response == null || response.results() == null) {
+            throw new IllegalStateException(
+                    "PokeAPI returned an invalid Pokemon list response."
+            );
+        }
 
         List<Pokemon> pokemon = response.results()
                 .stream()
-                .map(item -> mapPokemon(client.getPokemon(item.url())))
+                .map(item -> client.getPokemon(item.url()))
+                .map(this::mapPokemon)
                 .toList();
 
         int totalPages = (int) Math.ceil(
@@ -41,22 +49,26 @@ public class PokeApiCatalogAdapter implements PokemonCatalog {
         );
     }
 
-    private Pokemon mapPokemon(PokeApiClient.PokemonResponse response) {
-        var species = client.getSpecies(response.species().url());
+    private Pokemon mapPokemon(
+            PokeApiClient.PokemonResponse response
+    ) {
+        if (response == null) {
+            throw new IllegalStateException(
+                    "PokeAPI returned an empty Pokemon response."
+            );
+        }
 
-        String category = species.genera() == null
-                ? null
-                : species.genera().stream()
-                    .filter(genus -> "en".equals(genus.language().name()))
-                    .map(PokeApiClient.Genus::genus)
-                    .findFirst()
-                    .orElse(null);
-
-        List<String> types = response.types().stream()
+        List<String> types = response.types() == null
+                ? List.of()
+                : response.types().stream()
+                .filter(slot -> slot.type() != null)
                 .map(slot -> slot.type().name())
                 .toList();
 
-        List<String> abilities = response.abilities().stream()
+        List<String> abilities = response.abilities() == null
+                ? List.of()
+                : response.abilities().stream()
+                .filter(slot -> slot.ability() != null)
                 .map(slot -> slot.ability().name())
                 .toList();
 

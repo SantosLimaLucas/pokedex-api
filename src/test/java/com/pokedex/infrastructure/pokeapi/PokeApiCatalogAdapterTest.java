@@ -85,8 +85,5 @@ class PokeApiCatalogAdapterTest {
         verify(client).getPokemon(
                 "https://pokeapi.co/api/v2/pokemon/25/"
         );
-        verify(client).getSpecies(
-                "https://pokeapi.co/api/v2/pokemon-species/25/"
-        );
     }
 }
